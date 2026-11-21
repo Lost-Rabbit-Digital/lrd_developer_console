@@ -391,3 +391,19 @@ func test_dropdown_still_completes_single_word_command_parameters() -> void:
 func test_dropdown_matches_partly_typed_multi_word_command_names() -> void:
 	var console := _make_console()
 	assert_array(Array(console._get_dropdown_matches("echo wa"))).contains(["echo_warning"])
+
+
+func test_add_command_accepts_packed_string_array_arguments() -> void:
+	var console := _make_console()
+	var rec := Recorder.new()
+	console.add_command("spawn", rec.record, PackedStringArray(["a", "b"]), 2)
+	assert_bool(console.console_commands.has("spawn")).is_true()
+	console._on_text_entered("spawn 1 2")
+	assert_array(rec.calls).is_equal([["1", "2"]])
+
+
+func test_add_hidden_command_accepts_packed_string_array_arguments() -> void:
+	var console := _make_console()
+	var rec := Recorder.new()
+	console.add_hidden_command("secret", rec.record, PackedStringArray(["a"]), 1)
+	assert_bool(console.console_commands["secret"].hidden).is_true()
