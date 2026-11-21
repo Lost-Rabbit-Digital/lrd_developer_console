@@ -1063,7 +1063,10 @@ func _match_command_from_tokens(tokens : PackedStringArray) -> Array:
 	if best_match.is_empty() and not tokens.is_empty() and COMMAND_SHORTHANDS.has(tokens[0]):
 		var replacement : PackedStringArray = PackedStringArray(COMMAND_SHORTHANDS[tokens[0]])
 		var expanded := replacement + tokens.slice(1)
-		for i in range(1, expanded.size() + 1):
+		# Start at the full replacement: a partial expansion (e.g. "tree" -> "print"
+		# when a "print" command exists) would consume zero original tokens and
+		# leak the alias itself into the arguments.
+		for i in range(replacement.size(), expanded.size() + 1):
 			var candidate := "_".join(expanded.slice(0, i))
 			if console_commands.has(candidate):
 				best_match = candidate
