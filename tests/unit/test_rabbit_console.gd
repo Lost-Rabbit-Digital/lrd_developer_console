@@ -195,6 +195,17 @@ func test_shorthand_alias_resolves() -> void:
 	assert_int(result[1]).is_equal(1)
 
 
+func test_shorthand_does_not_match_partial_expansion() -> void:
+	var console := _make_console()
+	var rec := Recorder.new()
+	console.add_command("print", rec.record, ["a", "b"])
+	console.remove_command("print_tree")
+	var result: Array = console._match_command_from_tokens(PackedStringArray(["tree", "x"]))
+	assert_str(result[0]).is_not_equal("print")
+	console._on_text_entered("tree x")
+	assert_array(rec.calls).is_empty()
+
+
 func test_unknown_command_emits_signal() -> void:
 	var console := _make_console()
 	var monitor := monitor_signals(console, false)
