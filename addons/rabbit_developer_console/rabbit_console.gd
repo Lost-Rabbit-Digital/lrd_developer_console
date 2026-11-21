@@ -94,18 +94,21 @@ func add_command(command_name : String, function : Callable, arguments = [], req
 		for i in range(arguments):
 			param_array.append("arg_" + str(i + 1))
 		console_commands[command_name] = ConsoleCommand.new(function, param_array, required, description, str_defaults)
-	elif (arguments is Array):
-		# New array argument system
+	elif (arguments is Array or arguments is PackedStringArray):
+		# New array argument system (PackedStringArray accepted too)
 		var str_args : PackedStringArray
 		for argument in arguments:
 			str_args.append(str(argument))
 		console_commands[command_name] = ConsoleCommand.new(function, str_args, required, description, str_defaults)
+	else:
+		push_error("Console.add_command('%s'): arguments must be an int or an Array of names, got %s." % [command_name, type_string(typeof(arguments))])
 
 
 ## Adds a secret command that will not show up in the help or auto-complete.
 func add_hidden_command(command_name : String, function : Callable, arguments = [], required : int = 0) -> void:
 	add_command(command_name, function, arguments, required)
-	console_commands[command_name].hidden = true
+	if console_commands.has(command_name):
+		console_commands[command_name].hidden = true
 
 
 ## Removes a command from the console.  This should be called on a script's _exit_tree()
